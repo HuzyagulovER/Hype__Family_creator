@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="css/family.css">
+	<link rel="stylesheet" href="css/font.css">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+	<title>FamilyManager - Golem</title>
+</head>
+
+<body>
+	<div id="app">
+		<div class="container" v-if="active">
+			<img src="images/close.png" @click="closeMenu()" class="close-button"></img>
+			<div class="inner-container">
+				<header>
+					<img class="users-icon" src="images/users-icon.png" alt="">
+					<h1>ოჯახები<br />შტატში</h1>
+				</header>
+				<div class="main" v-if="page == 0">
+					<div class="info">
+						<p>
+							<img src="images/main__price-icon.png" alt=""> შექმნის ფასი: <span>{{price}}$</span>
+						</p>
+						<p>
+							<img src="images/main__lvl-icon.png" alt=""> საჭიროა ლევლი:
+							<span :class="{'lvlfail': playerlvl < needlvl}">{{needlvl}}</span>
+						</p>
+						<p>
+							<img src="images/main__families-icon.png" alt=""> ოჯახები შტატში:
+							<span>{{familycount}}</span>
+						</p>
+					</div>
+					<img class="main-image" src="images/main__center-image.png" alt="">
+					<div class="description">
+						<p>
+							მოგესალმებით, აქ შეგიძლიათ მიიღოთ ინფორმაცია შტატში მყოფ ოჯახებზე. გადახედოთ სიას უკვე არსებული
+							ოჯახების შესახებ, მიიღოთ ამომწურავი ინფორმაცია მათ მიღწევებზე ლეველზე და სრულ სტატისტიკაზე.
+						</p>
+						<p>
+							რათქმაუნდა თქვენ შეგიძლიათ შექმნათ საკუთარი ოჯახი, აიყვანოთ ხალხი შეასრულოთ მითითებები და აამაღლოთ
+							თქვენი ოჯახის ავტორიტეტი.
+						</p>
+					</div>
+					<img src="images/main__girl.png" alt="" class="girl">
+				</div>
+				<div class="main pageCreate" v-if="page == 1">
+					<div class="page__title">
+						<h2>ოჯახის შექმნა</h2>
+						<h3>შექმენით საკუთარი ოჯახი</h3>
+					</div>
+					<div class="items">
+						<div class="item">
+							<input v-model="createname" maxlength="30" type="text" placeholder="მიუთითეთ სახელი">
+							<p>
+								მიუთითეთ ოჯახის დასახელება, ოჯახის სახელის დანახვა შეეძლება ყველას. ასევე გაითვალისწინეთ რომ
+								ოჯახზე სახელის შეცვლა ხდება მხოლოდ დონაციით.
+							</p>
+						</div>
+						<div class="item">
+							<div class="families-amount">
+								<span class="radio">
+									<input v-model="createcount" @change="changeRad(0)" value="15" type="radio" name="count"
+										id="rad_1">
+									<label for="rad_1">15</label>
+									<div class="radio-button"></div>
+								</span>
+								<span class="radio">
+									<input v-model="createcount" @change="changeRad(1)" value="20" type="radio" name="count"
+										id="rad_2">
+									<label for="rad_2">20</label>
+									<div class="radio-button"></div>
+								</span>
+								<span class="radio">
+									<input v-model="createcount" @change="changeRad(2)" value="25" type="radio" name="count"
+										id="rad_3">
+									<label for="rad_3">25</label>
+									<div class="radio-button"></div>
+								</span>
+								<span class="radio">
+									<input v-model="createcount" @change="changeRad(3)" value="30" type="radio" name="count"
+										id="rad_4">
+									<label for="rad_4">30</label>
+									<div class="radio-button"></div>
+								</span>
+							</div>
+							<p>
+								მიუთითეთ ოჯახის წევრების რაოდენობა თქვენი ოჯახისათვის. არჩევანის გაკეთების შემდეგ ოჯახში ყოველი
+								5 სლოტის ყიდვის ფასია {{multiplier}}$.
+							</p>
+						</div>
+						<div class="item">
+							<span class="imgurl">
+								<img :src="familyurl" @load="imgupload = false" @error="imgupload = true" alt="Ошибка загрузки">
+							</span>
+							<span class="imgurl">
+								<label for="imgurl">აირჩიეთ ოჯახის ლოგო. მიუთთეთ სურათის URL </label>
+								<input id="imgurl" v-model="familyurl" @blur="replaceImg()" type="text"
+									placeholder="Данное изображение будет вашим логотипом">
+							</span>
+						</div>
+					</div>
+					<a class="btnBuy" @click="createFamily()">ოჯახის შექმნა - {{allprices}}$</a>
+				</div>
+				<div class="main pageList" v-if="page == 2">
+					<div class="page__title">
+						<h2>ოჯახების სია:</h2>
+						<h3>შტატში არსებული ოჯახების სია</h3>
+					</div>
+					<div class="items">
+						<div class="item" v-for="(item, index) in families">
+							<img src="images/up-arrow.png" alt="">
+							<p>
+								{{item[0]}} || Leader: {{item[1]}}
+							</p>
+							<span>
+								<img class="number-icon" src="images/family-list__number-icon.png" alt="">
+								წევრები: {{item[3]}}/{{item[2]}}</span>
+						</div>
+					</div>
+					<img src="images/family-list__girl.png" alt="" class="girl">
+				</div>
+				<footer>
+					<div>
+						<a :class="{btnActive: page == 0}" class="button" @click="changePage(0)">მთავარი</a>
+					</div>
+					<div>
+						<a :class="{btnActive: page == 1}" class="button" @click="changePage(1)">შექმნა</a>
+					</div>
+					<div>
+						<a :class="{btnActive: page == 2}" class="button" @click="changePage(2)">ოჯახების სია</a>
+					</div>
+				</footer>
+			</div>
+		</div>
+	</div>
+	<script src="js/family.js"></script>
+</body>
+
+</html>
